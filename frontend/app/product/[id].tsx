@@ -41,11 +41,11 @@ export default function ProductDetailScreen() {
   }, [id]);
 
   const loadProduct = async () => {
-    if (!user?.id_vendedor || !id) return;
+    if (!user?.id_empresa || !id) return;
 
     try {
       setLoading(true);
-      const data = await catalogService.getProductDetails(user.id_vendedor, Number(id));
+      const data = await catalogService.getProductDetails(user.id_empresa, Number(id));
       setProduct(data);
       setQuantity(data.qtd_minima_embalagem || 1);
     } catch (error) {
@@ -60,13 +60,13 @@ export default function ProductDetailScreen() {
   };
 
   const handleAddToCart = async () => {
-    if (!user?.id_vendedor || !product) return;
+    if (!user?.id_empresa || !product) return;
 
     setAdding(true);
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      await addToCart(user.id_vendedor, product.id, quantity, observacao);
-      await fetchCart(user.id_vendedor);
+      await addToCart(user.id_empresa, product.id, quantity, observacao);
+      await fetchCart(user.id_empresa);
       Toast.show({
         type: 'success',
         text1: 'Adicionado ao carrinho!',

@@ -1,8 +1,12 @@
 export interface User {
+  id_empresa: number;
+  id_login: number;
   id_vendedor: number;
   nome: string;
   email?: string;
+  is_vendedor: boolean;
   logged_in: boolean;
+  success?: boolean;
 }
 
 export interface Category {
@@ -33,20 +37,24 @@ export interface Product {
 }
 
 export interface CartItem {
-  id: number;
-  produto_id: number;
-  produto: Product;
+  row_id: string;
+  id_produto: number;
+  id_kit?: number;
+  nome: string;
+  preco: number;
   quantidade: number;
-  observacao?: string;
+  quantidade_real: number;
   subtotal: number;
+  imagem?: string;
+  observacao?: string;
+  unidade?: string;
 }
 
 export interface Cart {
-  items: CartItem[];
+  itens: CartItem[];
   subtotal: number;
-  desconto: number;
-  total: number;
-  quantidade_total: number;
+  custo_total: number;
+  quantidade_itens: number;
 }
 
 export interface Client {

@@ -165,14 +165,14 @@ const CartBottomSheet = forwardRef<CartBottomSheetRef>((props, ref) => {
       <BottomSheetView style={styles.contentContainer}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Carrinho</Text>
-          {cart && cart.quantidade_total > 0 && (
+          {cart && (cart.quantidade_itens ?? 0) > 0 && (
             <View style={styles.itemCount}>
-              <Text style={styles.itemCountText}>{cart.quantidade_total} itens</Text>
+              <Text style={styles.itemCountText}>{Math.floor(cart.quantidade_itens ?? 0)} itens</Text>
             </View>
           )}
         </View>
 
-        {!cart || cart.items.length === 0 ? (
+        {!cart || (cart.itens ?? []).length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="cart-outline" size={64} color="#D1D5DB" />
             <Text style={styles.emptyText}>Seu carrinho está vazio</Text>
@@ -181,9 +181,9 @@ const CartBottomSheet = forwardRef<CartBottomSheetRef>((props, ref) => {
         ) : (
           <>
             <FlatList
-              data={cart.items}
+              data={cart.itens}
               renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item.row_id}
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
             />
@@ -194,7 +194,7 @@ const CartBottomSheet = forwardRef<CartBottomSheetRef>((props, ref) => {
                 <Text style={styles.totalValue}>{formatCurrency(cart.subtotal)}</Text>
               </View>
 
-              {cart.desconto > 0 && (
+              {cart.desconto && cart.desconto > 0 ? (
                 <View style={styles.totalRow}>
                   <Text style={styles.discountLabel}>Desconto:</Text>
                   <Text style={styles.discountValue}>-{formatCurrency(cart.desconto)}</Text>
@@ -203,7 +203,7 @@ const CartBottomSheet = forwardRef<CartBottomSheetRef>((props, ref) => {
 
               <View style={[styles.totalRow, styles.totalRowFinal]}>
                 <Text style={styles.finalLabel}>Total:</Text>
-                <Text style={styles.finalValue}>{formatCurrency(cart.total)}</Text>
+                <Text style={styles.finalValue}>{formatCurrency(cart.subtotal)}</Text>
               </View>
 
               <TouchableOpacity

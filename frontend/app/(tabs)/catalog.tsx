@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,57 +20,59 @@ import Toast from 'react-native-toast-message';
 import * as Haptics from 'expo-haptics';
 import { formatCurrency } from '@/utils/formatters';
 import { Image } from 'expo-image';
+import CartBottomSheet, { CartBottomSheetRef } from '@/components/CartBottomSheet';
 
 export default function CatalogScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const { categories, products, isOnline, isLoading, fetchCategories, fetchProducts, searchProducts } = useCatalogStore();
   const { cart, addToCart, fetchCart } = useCartStore();
+  const cartBottomSheetRef = useRef<CartBottomSheetRef>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [addingProduct, setAddingProduct] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user?.id_vendedor) {
+    if (user?.id_empresa) {
       loadData();
     }
   }, [user]);
 
   const loadData = async () => {
-    if (user?.id_vendedor) {
-      await fetchCategories(user.id_vendedor);
-      await fetchProducts(user.id_vendedor);
+    if (user?.id_empresa) {
+      await fetchCategories(user.id_empresa);
+      await fetchProducts(user.id_empresa);
     }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await loadData();
-    if (user?.id_vendedor) {
-      await fetchCart(user.id_vendedor);
+    if (user?.id_empresa) {
+      await fetchCart(user.id_empresa);
     }
     setRefreshing(false);
   };
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.trim() && user?.id_vendedor) {
-      await searchProducts(user.id_vendedor, query);
-    } else if (user?.id_vendedor) {
-      await fetchProducts(user.id_vendedor, selectedCategory || undefined);
+    if (query.trim() && user?.id_empresa) {
+      await searchProducts(user.id_empresa, query);
+    } else if (user?.id_empresa) {
+      await fetchProducts(user.id_empresa, selectedCategory || undefined);
     }
   };
 
   const handleCategoryPress = async (categoryId: number) => {
     setSelectedCategory(categoryId === selectedCategory ? null : categoryId);
-    if (user?.id_vendedor) {
-      await fetchProducts(user.id_vendedor, categoryId === selectedCategory ? undefined : categoryId);
+    if (user?.id_empresa) {
+      await fetchProducts(user.id_empresa, categoryId === selectedCategory ? undefined : categoryId);
     }
   };
 
   const handleAddToCart = async (productId: number) => {
-    if (!user?.id_vendedor || !isOnline) {
+    if (!user?.id_empresa || !isOnline) {
       Toast.show({
         type: 'error',
         text1: 'Sem conexão',
@@ -82,8 +84,8 @@ export default function CatalogScreen() {
     setAddingProduct(productId);
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      await addToCart(user.id_vendedor, productId, 1);
-      await fetchCart(user.id_vendedor);
+      await addToCart(user.id_empresa, productId, 1);
+      await fetchCart(user.id_empresa);
       Toast.show({
         type: 'success',
         text1: 'Produto adicionado!',
@@ -193,10 +195,10 @@ export default function CatalogScreen() {
             onPress={() => cartBottomSheetRef.current?.open()}
           >
             <Ionicons name="cart-outline" size={28} color="#FF6B00" />
-            {cart && cart.quantidade_total > 0 && (
+            {cart && (cart.quantidade_itens ?? 0) > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>
-                  {cart.quantidade_total > 99 ? '99+' : cart.quantidade_total}
+                  {(cart.quantidade_itens ?? 0) > 99 ? '99+' : Math.floor(cart.quantidade_itens ?? 0)}
                 </Text>
               </View>
             )}

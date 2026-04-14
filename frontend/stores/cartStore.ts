@@ -5,15 +5,15 @@ import { cartService } from '@/services/cart.service';
 interface CartState {
   cart: Cart | null;
   isLoading: boolean;
-  
+
   fetchCart: (idEmpresa: number) => Promise<void>;
   addToCart: (idEmpresa: number, produtoId: number, quantidade: number, observacao?: string) => Promise<void>;
-  updateCartItem: (idEmpresa: number, itemId: number, quantidade: number) => Promise<void>;
-  removeFromCart: (idEmpresa: number, itemId: number) => Promise<void>;
+  updateCartItem: (idEmpresa: number, rowId: string, quantidade: number) => Promise<void>;
+  removeFromCart: (idEmpresa: number, rowId: string) => Promise<void>;
   clearCart: (idEmpresa: number) => Promise<void>;
 }
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const useCartStore = create<CartState>((set) => ({
   cart: null,
   isLoading: false,
 
@@ -38,9 +38,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  updateCartItem: async (idEmpresa: number, itemId: number, quantidade: number) => {
+  updateCartItem: async (idEmpresa: number, rowId: string, quantidade: number) => {
     try {
-      const cart = await cartService.updateCartItem(idEmpresa, itemId, quantidade);
+      const cart = await cartService.updateCartItem(idEmpresa, rowId, quantidade);
       set({ cart });
     } catch (error) {
       console.error('Update cart error:', error);
@@ -48,9 +48,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  removeFromCart: async (idEmpresa: number, itemId: number) => {
+  removeFromCart: async (idEmpresa: number, rowId: string) => {
     try {
-      const cart = await cartService.removeFromCart(idEmpresa, itemId);
+      const cart = await cartService.removeFromCart(idEmpresa, rowId);
       set({ cart });
     } catch (error) {
       console.error('Remove from cart error:', error);
@@ -58,13 +58,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  clearCart: async (idEmpresa: number) => {
-    try {
-      await cartService.clearCart(idEmpresa);
-      set({ cart: null });
-    } catch (error) {
-      console.error('Clear cart error:', error);
-      throw error;
-    }
+  clearCart: async (_idEmpresa: number) => {
+    // Backend não tem endpoint de limpar carrinho — apenas zeramos localmente
+    set({ cart: null });
   },
 }));
+

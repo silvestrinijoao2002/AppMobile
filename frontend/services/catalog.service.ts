@@ -3,30 +3,30 @@ import { Category, Product } from '../types';
 
 export const catalogService = {
   async getCategories(idEmpresa: number): Promise<Category[]> {
-    const response = await api.get(`/catalogo/publico?id_empresa=${idEmpresa}`);
-    return response.data;
+    const response = await api.get(`/api/mobile/catalogo/categorias?id_empresa=${idEmpresa}`);
+    return response.data.categorias ?? [];
   },
 
-  async getProducts(idEmpresa: number, categoriaId?: number): Promise<Product[]> {
-    let url = `/catalogo/publico/produtos?id_empresa=${idEmpresa}`;
+  async getProducts(idEmpresa: number, categoriaId?: number, pagina: number = 1): Promise<Product[]> {
+    let url = `/api/mobile/catalogo/produtos?id_empresa=${idEmpresa}&pagina=${pagina}`;
     if (categoriaId) {
-      url += `&categoria_id=${categoriaId}`;
+      url += `&categoria=${categoriaId}`;
     }
     const response = await api.get(url);
-    return response.data;
+    return response.data.produtos ?? [];
   },
 
   async getProductDetails(idEmpresa: number, productId: number): Promise<Product> {
     const response = await api.get(
-      `/catalogo/publico/produto/${productId}?id_empresa=${idEmpresa}`
+      `/api/mobile/catalogo/produto/${productId}?id_empresa=${idEmpresa}`
     );
-    return response.data;
+    return response.data.produto;
   },
 
   async searchProducts(idEmpresa: number, query: string): Promise<Product[]> {
     const response = await api.get(
-      `/catalogo/publico/buscar?id_empresa=${idEmpresa}&q=${encodeURIComponent(query)}`
+      `/api/mobile/catalogo/produtos?id_empresa=${idEmpresa}&q=${encodeURIComponent(query)}`
     );
-    return response.data;
+    return response.data.produtos ?? [];
   },
 };
