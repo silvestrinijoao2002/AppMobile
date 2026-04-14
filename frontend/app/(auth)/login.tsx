@@ -10,8 +10,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 import Toast from 'react-native-toast-message';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -21,6 +23,7 @@ export default function LoginScreen() {
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, enableBiometrics, biometricsEnabled } = useAuthStore();
   const router = useRouter();
 
@@ -47,10 +50,7 @@ export default function LoginScreen() {
           'Ativar Biometria?',
           'Deseja usar biometria para fazer login rapidamente?',
           [
-            {
-              text: 'Não',
-              style: 'cancel',
-            },
+            { text: 'Não', style: 'cancel' },
             {
               text: 'Sim',
               onPress: async () => {
@@ -120,80 +120,120 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <View className="flex-1">
+      <LinearGradient
+        colors={['#FF6B00', '#FF8C42', '#FFA366']}
         className="flex-1"
       >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="flex-1 justify-center px-6">
-            {/* Logo Section */}
-            <View className="items-center mb-12">
-              <View className="w-24 h-24 bg-primary rounded-3xl items-center justify-center mb-4">
-                <Text className="text-white text-4xl font-bold">DC</Text>
-              </View>
-              <Text className="text-3xl font-bold text-gray-800">Diverte Catálogo</Text>
-              <Text className="text-base text-gray-500 mt-2">Sistema de Vendas</Text>
-            </View>
-
-            {/* Login Form */}
-            <View className="space-y-4">
-              <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Usuário</Text>
-                <TextInput
-                  className="bg-white rounded-2xl px-4 py-4 text-base border border-gray-200"
-                  placeholder="Digite seu usuário"
-                  value={usuario}
-                  onChangeText={setUsuario}
-                  autoCapitalize="none"
-                  editable={!loading}
-                />
+        <SafeAreaView className="flex-1" edges={['top']}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1"
+          >
+            <ScrollView
+              contentContainerClassName="flex-grow justify-center px-6"
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Logo Section */}
+              <View className="items-center mb-12">
+                <View className="w-24 h-24 bg-white rounded-full items-center justify-center mb-6 shadow-2xl">
+                  <Ionicons name="gift" size={48} color="#FF6B00" />
+                </View>
+                <Text className="text-4xl font-bold text-white mb-2">Diverte Catálogo</Text>
+                <Text className="text-lg text-white/90">Sistema de Vendas</Text>
               </View>
 
-              <View className="mt-4">
-                <Text className="text-sm font-medium text-gray-700 mb-2">Senha</Text>
-                <TextInput
-                  className="bg-white rounded-2xl px-4 py-4 text-base border border-gray-200"
-                  placeholder="Digite sua senha"
-                  value={senha}
-                  onChangeText={setSenha}
-                  secureTextEntry
-                  editable={!loading}
-                />
-              </View>
+              {/* Login Card */}
+              <View className="bg-white rounded-3xl p-6 shadow-2xl">
+                <Text className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                  Entrar
+                </Text>
 
-              <TouchableOpacity
-                className="bg-primary rounded-2xl py-4 mt-6 shadow-lg"
-                onPress={handleLogin}
-                disabled={loading}
-                activeOpacity={0.8}
-              >
-                {loading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text className="text-white text-center text-lg font-semibold">Entrar</Text>
-                )}
-              </TouchableOpacity>
+                {/* Usuario Input */}
+                <View className="mb-4">
+                  <Text className="text-sm font-semibold text-gray-700 mb-2">Usuário</Text>
+                  <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                    <Ionicons name="person-outline" size={20} color="#9CA3AF" />
+                    <TextInput
+                      className="flex-1 ml-3 text-base text-gray-800"
+                      placeholder="Digite seu usuário"
+                      placeholderTextColor="#9CA3AF"
+                      value={usuario}
+                      onChangeText={setUsuario}
+                      autoCapitalize="none"
+                      editable={!loading}
+                    />
+                  </View>
+                </View>
 
-              {biometricsEnabled && (
+                {/* Senha Input */}
+                <View className="mb-6">
+                  <Text className="text-sm font-semibold text-gray-700 mb-2">Senha</Text>
+                  <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                    <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
+                    <TextInput
+                      className="flex-1 ml-3 text-base text-gray-800"
+                      placeholder="Digite sua senha"
+                      placeholderTextColor="#9CA3AF"
+                      value={senha}
+                      onChangeText={setSenha}
+                      secureTextEntry={!showPassword}
+                      editable={!loading}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="ml-2"
+                    >
+                      <Ionicons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={20}
+                        color="#9CA3AF"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Login Button */}
                 <TouchableOpacity
-                  className="bg-white border-2 border-primary rounded-2xl py-4 mt-3"
-                  onPress={handleBiometricLogin}
+                  className="bg-primary rounded-2xl py-4 shadow-lg active:scale-95"
+                  onPress={handleLogin}
                   disabled={loading}
                   activeOpacity={0.8}
+                  style={{
+                    transform: [{ scale: loading ? 0.95 : 1 }],
+                  }}
                 >
-                  <Text className="text-primary text-center text-lg font-semibold">
-                    Entrar com Biometria
-                  </Text>
+                  {loading ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text className="text-white text-center text-lg font-bold">Entrar</Text>
+                  )}
                 </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+                {/* Biometric Login */}
+                {biometricsEnabled && (
+                  <TouchableOpacity
+                    className="bg-white border-2 border-primary rounded-2xl py-4 mt-3 flex-row items-center justify-center"
+                    onPress={handleBiometricLogin}
+                    disabled={loading}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="finger-print" size={24} color="#FF6B00" />
+                    <Text className="text-primary text-center text-lg font-bold ml-2">
+                      Login com Biometria
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Footer */}
+              <Text className="text-white text-center text-sm mt-8 opacity-80">
+                © 2025 Diverte Catálogo - Todos os direitos reservados
+              </Text>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </LinearGradient>
+    </View>
   );
 }
