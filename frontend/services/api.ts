@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { MMKV } from 'react-native-mmkv';
-
-const storage = new MMKV();
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Base API configuration
 const api = axios.create({
@@ -15,8 +13,8 @@ const api = axios.create({
 
 // Request interceptor to add saved cookies
 api.interceptors.request.use(
-  (config) => {
-    const savedCookie = storage.getString('session_cookie');
+  async (config) => {
+    const savedCookie = await AsyncStorage.getItem('session_cookie');
     if (savedCookie) {
       config.headers['Cookie'] = savedCookie;
     }
@@ -27,19 +25,19 @@ api.interceptors.request.use(
 
 // Response interceptor to handle session expiration
 api.interceptors.response.use(
-  (response) => {
+  async (response) => {
     // Save session cookies if present
     const setCookie = response.headers['set-cookie'];
     if (setCookie) {
-      storage.set('session_cookie', setCookie[0]);
+      await AsyncStorage.setItem('session_cookie', setCookie[0]);
     }
     return response;
   },
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
       // Session expired - clear auth data
-      storage.delete('session_cookie');
-      storage.delete('user_data');
+      await AsyncStorage.removeItem('session_cookie');
+      await AsyncStorage.removeItem('user_data');
       // Navigation to login will be handled by the store
     }
     return Promise.reject(error);

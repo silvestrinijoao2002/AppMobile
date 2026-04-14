@@ -1,10 +1,8 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { User } from '../types';
-import { authService } from '../services/auth.service';
-
-const storage = new MMKV();
+import { User } from '@/types';
+import { authService } from '@/services/auth.service';
 
 interface AuthState {
   user: User | null;
@@ -28,7 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (usuario: string, senha: string) => {
     try {
       const user = await authService.login(usuario, senha);
-      storage.set('user_data', JSON.stringify(user));
+      await AsyncStorage.setItem('user_data', JSON.stringify(user));
       set({ user, isAuthenticated: true });
     } catch (error) {
       console.error('Login error:', error);
@@ -42,8 +40,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      storage.delete('user_data');
-      storage.delete('session_cookie');
+      await AsyncStorage.removeItem('user_data');
+      await AsyncStorage.removeItem('session_cookie');
       await SecureStore.deleteItemAsync('biometric_usuario');
       await SecureStore.deleteItemAsync('biometric_senha');
       set({ user: null, isAuthenticated: false, biometricsEnabled: false });
@@ -52,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   checkSession: async () => {
     try {
-      const savedUser = storage.getString('user_data');
+      const savedUser = await AsyncStorage.getItem('user_data');
       if (savedUser) {
         const user = JSON.parse(savedUser);
         const sessionValid = await authService.checkSession();

@@ -1,10 +1,8 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-import { Category, Product } from '../types';
-import { catalogService } from '../services/catalog.service';
-
-const storage = new MMKV();
+import { Category, Product } from '@/types';
+import { catalogService } from '@/services/catalog.service';
 
 interface CatalogState {
   categories: Category[];
@@ -37,11 +35,11 @@ export const useCatalogStore = create<CatalogState>((set) => {
         // Try to fetch from API
         try {
           const categories = await catalogService.getCategories(idEmpresa);
-          storage.set('cached_categories', JSON.stringify(categories));
+          await AsyncStorage.setItem('cached_categories', JSON.stringify(categories));
           set({ categories, isLoading: false });
         } catch (error) {
           // If offline, load from cache
-          const cached = storage.getString('cached_categories');
+          const cached = await AsyncStorage.getItem('cached_categories');
           if (cached) {
             const categories = JSON.parse(cached);
             set({ categories, isLoading: false });
@@ -62,12 +60,12 @@ export const useCatalogStore = create<CatalogState>((set) => {
         try {
           const products = await catalogService.getProducts(idEmpresa, categoriaId);
           const cacheKey = categoriaId ? `cached_products_${categoriaId}` : 'cached_products_all';
-          storage.set(cacheKey, JSON.stringify(products));
+          await AsyncStorage.setItem(cacheKey, JSON.stringify(products));
           set({ products, isLoading: false });
         } catch (error) {
           // If offline, load from cache
           const cacheKey = categoriaId ? `cached_products_${categoriaId}` : 'cached_products_all';
-          const cached = storage.getString(cacheKey);
+          const cached = await AsyncStorage.getItem(cacheKey);
           if (cached) {
             const products = JSON.parse(cached);
             set({ products, isLoading: false });

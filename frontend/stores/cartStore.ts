@@ -1,9 +1,6 @@
 import { create } from 'zustand';
-import { Cart } from '../types';
-import { cartService } from '../services/cart.service';
-import { MMKV } from 'react-native-mmkv';
-
-const storage = new MMKV();
+import { Cart } from '@/types';
+import { cartService } from '@/services/cart.service';
 
 interface CartState {
   cart: Cart | null;
