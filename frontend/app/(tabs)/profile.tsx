@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
@@ -58,71 +58,61 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View className="bg-white px-4 py-3 border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-800">Perfil</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Perfil</Text>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView style={styles.content}>
         {/* User Card */}
-        <View className="bg-white m-4 rounded-2xl p-6 shadow-sm items-center">
-          <View className="w-20 h-20 bg-primary rounded-full items-center justify-center mb-3">
-            <Text className="text-white text-3xl font-bold">
+        <View style={styles.userCard}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
               {user?.nome?.charAt(0).toUpperCase() || 'U'}
             </Text>
           </View>
-          <Text className="text-xl font-bold text-gray-800">{user?.nome || 'Usuário'}</Text>
-          {user?.email && (
-            <Text className="text-sm text-gray-500 mt-1">{user.email}</Text>
-          )}
-          <View className="mt-3 bg-gray-100 px-4 py-2 rounded-full">
-            <Text className="text-xs font-medium text-gray-600">
-              ID: {user?.id_vendedor}
-            </Text>
+          <Text style={styles.userName}>{user?.nome || 'Usuário'}</Text>
+          {user?.email && <Text style={styles.userEmail}>{user.email}</Text>}
+          <View style={styles.userIdBadge}>
+            <Text style={styles.userIdText}>ID: {user?.id_vendedor}</Text>
           </View>
         </View>
 
         {/* Settings Section */}
-        <View className="mx-4 mb-4">
-          <Text className="text-sm font-semibold text-gray-500 uppercase mb-3 px-2">
-            Configurações
-          </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>CONFIGURAÇÕES</Text>
 
-          <View className="bg-white rounded-2xl shadow-sm">
+          <View style={styles.settingsCard}>
             {/* Biometrics Toggle */}
             <TouchableOpacity
-              className="flex-row items-center justify-between p-4 border-b border-gray-100"
+              style={styles.settingItem}
               onPress={handleToggleBiometrics}
               activeOpacity={0.7}
             >
-              <View className="flex-row items-center flex-1">
-                <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center">
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: '#DBEAFE' }]}>
                   <Ionicons name="finger-print-outline" size={20} color="#3B82F6" />
                 </View>
-                <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-gray-800">Biometria</Text>
-                  <Text className="text-xs text-gray-500">Login rápido e seguro</Text>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Biometria</Text>
+                  <Text style={styles.settingSubtitle}>Login rápido e seguro</Text>
                 </View>
               </View>
-              <View
-                className={`w-12 h-6 rounded-full items-center ${
-                  biometricsEnabled ? 'bg-secondary justify-end' : 'bg-gray-300 justify-start'
-                } flex-row px-1`}
-              >
-                <View className="w-5 h-5 bg-white rounded-full shadow" />
+              <View style={[styles.toggle, biometricsEnabled && styles.toggleActive]}>
+                <View style={styles.toggleThumb} />
               </View>
             </TouchableOpacity>
 
             {/* App Info */}
-            <View className="flex-row items-center justify-between p-4">
-              <View className="flex-row items-center flex-1">
-                <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center">
+            <View style={[styles.settingItem, styles.settingItemLast]}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: '#F3E8FF' }]}>
                   <Ionicons name="information-circle-outline" size={20} color="#A855F7" />
                 </View>
-                <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-gray-800">Versão</Text>
-                  <Text className="text-xs text-gray-500">1.0.0</Text>
+                <View style={styles.settingInfo}>
+                  <Text style={styles.settingTitle}>Versão</Text>
+                  <Text style={styles.settingSubtitle}>1.0.0</Text>
                 </View>
               </View>
             </View>
@@ -130,27 +120,205 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout Button */}
-        <View className="mx-4 mb-8">
+        <View style={styles.logoutContainer}>
           <TouchableOpacity
-            className="bg-red-500 rounded-2xl py-4 shadow-lg"
+            style={styles.logoutButton}
             onPress={handleLogout}
             activeOpacity={0.8}
           >
-            <View className="flex-row items-center justify-center">
-              <Ionicons name="log-out-outline" size={20} color="white" />
-              <Text className="text-white text-center text-base font-semibold ml-2">
-                Sair da Conta
-              </Text>
-            </View>
+            <Ionicons name="log-out-outline" size={20} color="white" />
+            <Text style={styles.logoutButtonText}>Sair da Conta</Text>
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
-        <View className="items-center pb-8">
-          <Text className="text-xs text-gray-400">Diverte Catálogo</Text>
-          <Text className="text-xs text-gray-400 mt-1">© 2025 - Todos os direitos reservados</Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Diverte Catálogo</Text>
+          <Text style={styles.footerText}>© 2025 - Todos os direitos reservados</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  content: {
+    flex: 1,
+  },
+  userCard: {
+    backgroundColor: 'white',
+    margin: 16,
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#FF6B00',
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  avatarText: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  userIdBadge: {
+    marginTop: 12,
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  userIdText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  section: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    marginBottom: 12,
+    paddingHorizontal: 8,
+  },
+  settingsCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  settingItemLast: {
+    borderBottomWidth: 0,
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  settingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingInfo: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  settingSubtitle: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  toggle: {
+    width: 48,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#D1D5DB',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleActive: {
+    backgroundColor: '#22C55E',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  toggleThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  logoutContainer: {
+    marginHorizontal: 16,
+    marginBottom: 32,
+  },
+  logoutButton: {
+    backgroundColor: '#EF4444',
+    borderRadius: 16,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  footer: {
+    alignItems: 'center',
+    paddingBottom: 32,
+  },
+  footerText: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    marginTop: 4,
+  },
+});

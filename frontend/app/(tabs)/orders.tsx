@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,80 +52,77 @@ export default function OrdersScreen() {
     setRefreshing(false);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pendente':
-        return 'bg-yellow-100 text-yellow-700';
+        return { bg: '#FEF3C7', text: '#92400E' };
       case 'aprovado':
-        return 'bg-green-100 text-green-700';
+        return { bg: '#D1FAE5', text: '#065F46' };
       case 'em separacao':
       case 'em separação':
-        return 'bg-blue-100 text-blue-700';
+        return { bg: '#DBEAFE', text: '#1E40AF' };
       case 'finalizado':
-        return 'bg-gray-100 text-gray-700';
+        return { bg: '#F3F4F6', text: '#374151' };
       case 'cancelado':
-        return 'bg-red-100 text-red-700';
+        return { bg: '#FEE2E2', text: '#991B1B' };
       default:
-        return 'bg-gray-100 text-gray-700';
+        return { bg: '#F3F4F6', text: '#374151' };
     }
   };
 
-  const renderOrder = ({ item }: { item: Order }) => (
-    <TouchableOpacity
-      className="bg-white rounded-2xl p-4 mb-3 shadow-sm"
-      activeOpacity={0.7}
-    >
-      <View className="flex-row justify-between items-start mb-3">
-        <View className="flex-1">
-          <View className="flex-row items-center mb-1">
-            <Text className="text-lg font-bold text-gray-800">#{item.numero}</Text>
-            <View className={`ml-3 px-2 py-1 rounded-full ${getStatusColor(item.status)}`}>
-              <Text className="text-xs font-semibold">{item.status}</Text>
+  const renderOrder = ({ item }: { item: Order }) => {
+    const statusStyle = getStatusStyle(item.status);
+    
+    return (
+      <TouchableOpacity style={styles.orderCard} activeOpacity={0.7}>
+        <View style={styles.orderHeader}>
+          <View style={styles.orderHeaderLeft}>
+            <View style={styles.orderNumberRow}>
+              <Text style={styles.orderNumber}>#{item.numero}</Text>
+              <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
+                <Text style={[styles.statusText, { color: statusStyle.text }]}>{item.status}</Text>
+              </View>
             </View>
+            <Text style={styles.clientName}>{item.cliente.nome}</Text>
           </View>
-          <Text className="text-sm text-gray-600 mt-1">{item.cliente.nome}</Text>
+          <Text style={styles.orderTotal}>{formatCurrency(item.total)}</Text>
         </View>
-        <Text className="text-xl font-bold text-primary">
-          {formatCurrency(item.total)}
-        </Text>
-      </View>
 
-      <View className="border-t border-gray-100 pt-3 flex-row justify-between">
-        <View className="flex-row items-center">
-          <Ionicons
-            name={item.tipo_pedido === 'delivery' ? 'car-outline' : 'storefront-outline'}
-            size={16}
-            color="#6B7280"
-          />
-          <Text className="text-xs text-gray-600 ml-1 capitalize">{item.tipo_pedido}</Text>
+        <View style={styles.orderFooter}>
+          <View style={styles.orderDetail}>
+            <Ionicons
+              name={item.tipo_pedido === 'delivery' ? 'car-outline' : 'storefront-outline'}
+              size={16}
+              color="#6B7280"
+            />
+            <Text style={styles.orderDetailText}>{item.tipo_pedido}</Text>
+          </View>
+          <View style={styles.orderDetail}>
+            <Ionicons name="card-outline" size={16} color="#6B7280" />
+            <Text style={styles.orderDetailText}>{item.forma_pagamento}</Text>
+          </View>
+          <View style={styles.orderDetail}>
+            <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+            <Text style={styles.orderDetailText}>
+              {new Date(item.data_criacao).toLocaleDateString('pt-BR')}
+            </Text>
+          </View>
         </View>
-        <View className="flex-row items-center">
-          <Ionicons name="card-outline" size={16} color="#6B7280" />
-          <Text className="text-xs text-gray-600 ml-1 capitalize">
-            {item.forma_pagamento}
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          <Ionicons name="calendar-outline" size={16} color="#6B7280" />
-          <Text className="text-xs text-gray-600 ml-1">
-            {new Date(item.data_criacao).toLocaleDateString('pt-BR')}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View className="bg-white px-4 py-3 border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-800">Pedidos</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Pedidos</Text>
 
         {/* Filter Buttons */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="mt-3 -mx-1"
+          style={styles.filtersContainer}
         >
           {[
             { label: 'Hoje', value: 'hoje' },
@@ -134,16 +132,10 @@ export default function OrdersScreen() {
           ].map((filter) => (
             <TouchableOpacity
               key={filter.value}
-              className={`mx-1 px-4 py-2 rounded-full ${
-                selectedFilter === filter.value ? 'bg-primary' : 'bg-gray-100'
-              }`}
+              style={[styles.filterChip, selectedFilter === filter.value && styles.filterChipActive]}
               onPress={() => setSelectedFilter(filter.value)}
             >
-              <Text
-                className={`font-semibold text-sm ${
-                  selectedFilter === filter.value ? 'text-white' : 'text-gray-700'
-                }`}
-              >
+              <Text style={[styles.filterText, selectedFilter === filter.value && styles.filterTextActive]}>
                 {filter.label}
               </Text>
             </TouchableOpacity>
@@ -153,24 +145,22 @@ export default function OrdersScreen() {
 
       {/* Orders List */}
       {loading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FF6B00" />
-          <Text className="text-gray-500 mt-4">Carregando pedidos...</Text>
+          <Text style={styles.loadingText}>Carregando pedidos...</Text>
         </View>
       ) : orders.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
+        <View style={styles.emptyContainer}>
           <Ionicons name="document-text-outline" size={64} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4 text-center">Nenhum pedido encontrado</Text>
-          <Text className="text-gray-400 text-sm mt-2 text-center">
-            Seus pedidos aparecerão aqui
-          </Text>
+          <Text style={styles.emptyText}>Nenhum pedido encontrado</Text>
+          <Text style={styles.emptySubtext}>Seus pedidos aparecerão aqui</Text>
         </View>
       ) : (
         <FlatList
           data={orders}
           renderItem={renderOrder}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+          contentContainerStyle={styles.ordersList}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#FF6B00']} />
           }
@@ -179,3 +169,141 @@ export default function OrdersScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  filtersContainer: {
+    marginTop: 12,
+    marginHorizontal: -4,
+  },
+  filterChip: {
+    marginHorizontal: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+  },
+  filterChipActive: {
+    backgroundColor: '#FF6B00',
+  },
+  filterText: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#374151',
+  },
+  filterTextActive: {
+    color: 'white',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#6B7280',
+    marginTop: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  emptyText: {
+    color: '#6B7280',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  ordersList: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  orderCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  orderHeaderLeft: {
+    flex: 1,
+  },
+  orderNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  orderNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  statusBadge: {
+    marginLeft: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  clientName: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  orderTotal: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF6B00',
+  },
+  orderFooter: {
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    paddingTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  orderDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  orderDetailText: {
+    fontSize: 10,
+    color: '#6B7280',
+    marginLeft: 4,
+    textTransform: 'capitalize',
+  },
+});

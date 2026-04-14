@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCartStore } from '@/stores/cartStore';
 import { useEffect } from 'react';
@@ -59,7 +59,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size}) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}

@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -41,7 +42,6 @@ export default function LoginScreen() {
     try {
       await login(usuario, senha);
       
-      // Ask if user wants to enable biometrics
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
       
@@ -120,42 +120,40 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1">
+    <View style={styles.container}>
       <LinearGradient
         colors={['#FF6B00', '#FF8C42', '#FFA366']}
-        className="flex-1"
+        style={styles.gradient}
       >
-        <SafeAreaView className="flex-1" edges={['top']}>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1"
+            style={styles.keyboardView}
           >
             <ScrollView
-              contentContainerClassName="flex-grow justify-center px-6"
+              contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled"
             >
               {/* Logo Section */}
-              <View className="items-center mb-12">
-                <View className="w-24 h-24 bg-white rounded-full items-center justify-center mb-6 shadow-2xl">
+              <View style={styles.logoContainer}>
+                <View style={styles.logoCircle}>
                   <Ionicons name="gift" size={48} color="#FF6B00" />
                 </View>
-                <Text className="text-4xl font-bold text-white mb-2">Diverte Catálogo</Text>
-                <Text className="text-lg text-white/90">Sistema de Vendas</Text>
+                <Text style={styles.title}>Diverte Catálogo</Text>
+                <Text style={styles.subtitle}>Sistema de Vendas</Text>
               </View>
 
               {/* Login Card */}
-              <View className="bg-white rounded-3xl p-6 shadow-2xl">
-                <Text className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                  Entrar
-                </Text>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>Entrar</Text>
 
                 {/* Usuario Input */}
-                <View className="mb-4">
-                  <Text className="text-sm font-semibold text-gray-700 mb-2">Usuário</Text>
-                  <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Usuário</Text>
+                  <View style={styles.inputContainer}>
                     <Ionicons name="person-outline" size={20} color="#9CA3AF" />
                     <TextInput
-                      className="flex-1 ml-3 text-base text-gray-800"
+                      style={styles.input}
                       placeholder="Digite seu usuário"
                       placeholderTextColor="#9CA3AF"
                       value={usuario}
@@ -167,12 +165,12 @@ export default function LoginScreen() {
                 </View>
 
                 {/* Senha Input */}
-                <View className="mb-6">
-                  <Text className="text-sm font-semibold text-gray-700 mb-2">Senha</Text>
-                  <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Senha</Text>
+                  <View style={styles.inputContainer}>
                     <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
                     <TextInput
-                      className="flex-1 ml-3 text-base text-gray-800"
+                      style={styles.input}
                       placeholder="Digite sua senha"
                       placeholderTextColor="#9CA3AF"
                       value={senha}
@@ -182,7 +180,7 @@ export default function LoginScreen() {
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
-                      className="ml-2"
+                      style={styles.eyeIcon}
                     >
                       <Ionicons
                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
@@ -195,39 +193,34 @@ export default function LoginScreen() {
 
                 {/* Login Button */}
                 <TouchableOpacity
-                  className="bg-primary rounded-2xl py-4 shadow-lg active:scale-95"
+                  style={[styles.loginButton, loading && styles.loginButtonDisabled]}
                   onPress={handleLogin}
                   disabled={loading}
                   activeOpacity={0.8}
-                  style={{
-                    transform: [{ scale: loading ? 0.95 : 1 }],
-                  }}
                 >
                   {loading ? (
                     <ActivityIndicator color="white" size="small" />
                   ) : (
-                    <Text className="text-white text-center text-lg font-bold">Entrar</Text>
+                    <Text style={styles.loginButtonText}>Entrar</Text>
                   )}
                 </TouchableOpacity>
 
                 {/* Biometric Login */}
                 {biometricsEnabled && (
                   <TouchableOpacity
-                    className="bg-white border-2 border-primary rounded-2xl py-4 mt-3 flex-row items-center justify-center"
+                    style={styles.biometricButton}
                     onPress={handleBiometricLogin}
                     disabled={loading}
                     activeOpacity={0.8}
                   >
                     <Ionicons name="finger-print" size={24} color="#FF6B00" />
-                    <Text className="text-primary text-center text-lg font-bold ml-2">
-                      Login com Biometria
-                    </Text>
+                    <Text style={styles.biometricButtonText}>Login com Biometria</Text>
                   </TouchableOpacity>
                 )}
               </View>
 
               {/* Footer */}
-              <Text className="text-white text-center text-sm mt-8 opacity-80">
+              <Text style={styles.footer}>
                 © 2025 Diverte Catálogo - Todos os direitos reservados
               </Text>
             </ScrollView>
@@ -237,3 +230,140 @@ export default function LoginScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 48,
+  },
+  logoCircle: {
+    width: 96,
+    height: 96,
+    backgroundColor: 'white',
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: 'rgba(255,255,255,0.9)',
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  cardTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+  },
+  input: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  eyeIcon: {
+    marginLeft: 8,
+  },
+  loginButton: {
+    backgroundColor: '#FF6B00',
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginTop: 8,
+    shadowColor: '#FF6B00',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
+  },
+  loginButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  biometricButton: {
+    backgroundColor: 'white',
+    borderWidth: 2,
+    borderColor: '#FF6B00',
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  biometricButtonText: {
+    color: '#FF6B00',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  footer: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 12,
+    marginTop: 32,
+    opacity: 0.8,
+  },
+});

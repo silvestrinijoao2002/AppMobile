@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -104,55 +105,54 @@ export default function CatalogScreen() {
     const isAdding = addingProduct === item.id;
 
     return (
-      <View className="w-[48%] bg-white rounded-2xl p-3 mb-4 shadow-sm">
+      <View style={styles.productCard}>
         {/* Product Image */}
-        <View className="relative">
+        <View style={styles.imageContainer}>
           <Image
             source={{ uri: item.imagem_principal || 'https://via.placeholder.com/200' }}
-            style={{ width: '100%', height: 150 }}
+            style={styles.productImage}
             contentFit="cover"
-            className="rounded-xl"
             placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
           />
           {discount > 0 && (
-            <View className="absolute top-2 right-2 bg-red-500 rounded-full px-2 py-1">
-              <Text className="text-white text-xs font-bold">-{discount}%</Text>
+            <View style={styles.discountBadge}>
+              <Text style={styles.discountText}>-{discount}%</Text>
             </View>
           )}
           {item.destaque && (
-            <View className="absolute top-2 left-2 bg-secondary rounded-full px-2 py-1">
-              <Text className="text-white text-xs font-bold">Destaque</Text>
+            <View style={styles.highlightBadge}>
+              <Text style={styles.highlightText}>Destaque</Text>
             </View>
           )}
         </View>
 
         {/* Product Info */}
-        <View className="mt-3">
-          <Text className="text-xs text-gray-500 mb-1">{item.codigo_interno}</Text>
-          <Text className="text-sm font-semibold text-gray-800 leading-5" numberOfLines={2}>
+        <View style={styles.productInfo}>
+          <Text style={styles.productCode}>{item.codigo_interno}</Text>
+          <Text style={styles.productName} numberOfLines={2}>
             {item.nome}
           </Text>
 
           {/* Price */}
-          <View className="mt-2">
+          <View style={styles.priceContainer}>
             {item.preco_anterior && item.preco_anterior > item.preco && (
-              <Text className="text-xs text-gray-400 line-through">
+              <Text style={styles.oldPrice}>
                 {formatCurrency(item.preco_anterior)}
               </Text>
             )}
-            <Text className="text-lg font-bold text-primary">
+            <Text style={styles.price}>
               {formatCurrency(item.preco)}
             </Text>
           </View>
 
           {/* Stock */}
-          <Text className="text-xs text-gray-500 mt-1">
+          <Text style={styles.stock}>
             Estoque: {item.estoque} {item.unidade}
           </Text>
 
           {/* Add to Cart Button */}
           <TouchableOpacity
-            className="bg-primary rounded-xl py-2 mt-3 flex-row items-center justify-center"
+            style={[styles.addButton, (!isOnline || isAdding) && styles.addButtonDisabled]}
             onPress={() => handleAddToCart(item.id)}
             disabled={isAdding || !isOnline}
             activeOpacity={0.8}
@@ -160,10 +160,10 @@ export default function CatalogScreen() {
             {isAdding ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
-              <>
+              <View style={styles.addButtonContent}>
                 <Ionicons name="cart-outline" size={16} color="white" />
-                <Text className="text-white font-semibold text-sm ml-2">Adicionar</Text>
-              </>
+                <Text style={styles.addButtonText}>Adicionar</Text>
+              </View>
             )}
           </TouchableOpacity>
         </View>
@@ -172,22 +172,19 @@ export default function CatalogScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View className="bg-white px-4 py-3 border-b border-gray-200">
-        <View className="flex-row items-center justify-between mb-3">
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
           <View>
-            <Text className="text-2xl font-bold text-gray-800">Catálogo</Text>
-            <Text className="text-sm text-gray-500">Olá, {user?.nome || 'Vendedor'}!</Text>
+            <Text style={styles.headerTitle}>Catálogo</Text>
+            <Text style={styles.headerSubtitle}>Olá, {user?.nome || 'Vendedor'}!</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => router.push('/(tabs)/cart' as any)}
-            className="relative"
-          >
+          <TouchableOpacity style={styles.cartButton}>
             <Ionicons name="cart-outline" size={28} color="#FF6B00" />
             {cart && cart.quantidade_total > 0 && (
-              <View className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 items-center justify-center">
-                <Text className="text-white text-xs font-bold">
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>
                   {cart.quantidade_total > 99 ? '99+' : cart.quantidade_total}
                 </Text>
               </View>
@@ -197,20 +194,21 @@ export default function CatalogScreen() {
 
         {/* Offline Indicator */}
         {!isOnline && (
-          <View className="bg-amber-100 rounded-lg px-3 py-2 flex-row items-center mb-3">
+          <View style={styles.offlineBanner}>
             <Ionicons name="cloud-offline-outline" size={16} color="#F59E0B" />
-            <Text className="text-amber-700 text-xs ml-2 font-medium">Modo Offline</Text>
+            <Text style={styles.offlineText}>Modo Offline</Text>
           </View>
         )}
 
         {/* Search Bar */}
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-2">
+        <View style={styles.searchContainer}>
           <Ionicons name="search-outline" size={20} color="#9CA3AF" />
           <TextInput
-            className="flex-1 ml-2 text-base"
+            style={styles.searchInput}
             placeholder="Buscar produtos..."
             value={searchQuery}
             onChangeText={handleSearch}
+            placeholderTextColor="#9CA3AF"
           />
         </View>
       </View>
@@ -220,39 +218,27 @@ export default function CatalogScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="bg-white border-b border-gray-200"
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
+          style={styles.categoriesContainer}
+          contentContainerStyle={styles.categoriesContent}
         >
           <TouchableOpacity
-            className={`mr-3 px-4 py-2 rounded-full ${
-              selectedCategory === null ? 'bg-primary' : 'bg-gray-100'
-            }`}
+            style={[styles.categoryChip, selectedCategory === null && styles.categoryChipActive]}
             onPress={() => {
               setSelectedCategory(null);
               if (user?.id_vendedor) fetchProducts(user.id_vendedor);
             }}
           >
-            <Text
-              className={`font-semibold ${
-                selectedCategory === null ? 'text-white' : 'text-gray-700'
-              }`}
-            >
+            <Text style={[styles.categoryText, selectedCategory === null && styles.categoryTextActive]}>
               Todos
             </Text>
           </TouchableOpacity>
           {categories.map((category) => (
             <TouchableOpacity
               key={category.id}
-              className={`mr-3 px-4 py-2 rounded-full ${
-                selectedCategory === category.id ? 'bg-primary' : 'bg-gray-100'
-              }`}
+              style={[styles.categoryChip, selectedCategory === category.id && styles.categoryChipActive]}
               onPress={() => handleCategoryPress(category.id)}
             >
-              <Text
-                className={`font-semibold ${
-                  selectedCategory === category.id ? 'text-white' : 'text-gray-700'
-                }`}
-              >
+              <Text style={[styles.categoryText, selectedCategory === category.id && styles.categoryTextActive]}>
                 {category.nome}
               </Text>
             </TouchableOpacity>
@@ -262,14 +248,14 @@ export default function CatalogScreen() {
 
       {/* Products Grid */}
       {isLoading && !refreshing ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FF6B00" />
-          <Text className="text-gray-500 mt-4">Carregando produtos...</Text>
+          <Text style={styles.loadingText}>Carregando produtos...</Text>
         </View>
       ) : products.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
+        <View style={styles.emptyContainer}>
           <Ionicons name="cube-outline" size={64} color="#D1D5DB" />
-          <Text className="text-gray-500 mt-4 text-center">
+          <Text style={styles.emptyText}>
             {searchQuery ? 'Nenhum produto encontrado' : 'Nenhum produto disponível'}
           </Text>
         </View>
@@ -279,8 +265,8 @@ export default function CatalogScreen() {
           renderItem={renderProduct}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 16 }}
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }}
+          columnWrapperStyle={styles.productRow}
+          contentContainerStyle={styles.productList}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#FF6B00']} />
           }
@@ -289,3 +275,235 @@ export default function CatalogScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  cartButton: {
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  offlineBanner: {
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  offlineText: {
+    color: '#92400E',
+    fontSize: 12,
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  categoriesContainer: {
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  categoriesContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  categoryChip: {
+    marginRight: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+  },
+  categoryChipActive: {
+    backgroundColor: '#FF6B00',
+  },
+  categoryText: {
+    fontWeight: '600',
+    color: '#374151',
+  },
+  categoryTextActive: {
+    color: 'white',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#6B7280',
+    marginTop: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  emptyText: {
+    color: '#6B7280',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  productList: {
+    paddingTop: 16,
+    paddingBottom: 80,
+  },
+  productRow: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  productCard: {
+    width: '48%',
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  productImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 12,
+  },
+  discountBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  discountText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  highlightBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#22C55E',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  highlightText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  productInfo: {
+    marginTop: 12,
+  },
+  productCode: {
+    fontSize: 10,
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1F2937',
+    lineHeight: 20,
+  },
+  priceContainer: {
+    marginTop: 8,
+  },
+  oldPrice: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    textDecorationLine: 'line-through',
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF6B00',
+  },
+  stock: {
+    fontSize: 10,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  addButton: {
+    backgroundColor: '#FF6B00',
+    borderRadius: 12,
+    paddingVertical: 8,
+    marginTop: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonDisabled: {
+    opacity: 0.5,
+  },
+  addButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+});
