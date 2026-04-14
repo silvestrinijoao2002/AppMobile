@@ -100,12 +100,20 @@ export default function CatalogScreen() {
     }
   };
 
+  const handleProductPress = (productId: number) => {
+    router.push(`/product/${productId}`);
+  };
+
   const renderProduct = ({ item }: any) => {
     const discount = item.percentual_desconto || 0;
     const isAdding = addingProduct === item.id;
 
     return (
-      <View style={styles.productCard}>
+      <TouchableOpacity 
+        style={styles.productCard}
+        onPress={() => handleProductPress(item.id)}
+        activeOpacity={0.7}
+      >
         {/* Product Image */}
         <View style={styles.imageContainer}>
           <Image
@@ -167,7 +175,7 @@ export default function CatalogScreen() {
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -180,7 +188,10 @@ export default function CatalogScreen() {
             <Text style={styles.headerTitle}>Catálogo</Text>
             <Text style={styles.headerSubtitle}>Olá, {user?.nome || 'Vendedor'}!</Text>
           </View>
-          <TouchableOpacity style={styles.cartButton}>
+          <TouchableOpacity 
+            style={styles.cartButton}
+            onPress={() => cartBottomSheetRef.current?.open()}
+          >
             <Ionicons name="cart-outline" size={28} color="#FF6B00" />
             {cart && cart.quantidade_total > 0 && (
               <View style={styles.cartBadge}>
@@ -272,6 +283,9 @@ export default function CatalogScreen() {
           }
         />
       )}
+
+      {/* Cart Bottom Sheet */}
+      <CartBottomSheet ref={cartBottomSheetRef} />
     </SafeAreaView>
   );
 }
@@ -498,6 +512,16 @@ const styles = StyleSheet.create({
   },
   addButtonContent: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+});
+w',
     alignItems: 'center',
   },
   addButtonText: {
